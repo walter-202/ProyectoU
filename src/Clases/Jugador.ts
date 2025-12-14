@@ -1,45 +1,43 @@
 import { Mazo } from "./ListaCircular.js";
-import { Carta } from "./Carta.js";
 import { PilaDescarte } from "./Pila_Descarte.js";
-import { Tablero } from "./Tablero.js";
+import { Tablero } from "./Tablero";
+import { ListaHistorial } from "./ListaDoble.js";
 
-export class Jugador{
-    public Nombre: string;
-    public pilaDescarte: PilaDescarte;
-    public Tablero: Tablero;
-    constructor(nombre: string){
-        this.Nombre = nombre;
-        this.pilaDescarte = new PilaDescarte();
-        this.Tablero = new Tablero();
+export class Jugador {
+  nombre: string;
+  tablero: Tablero;
+
+  constructor(nombre: string) {
+    this.nombre = nombre;
+    this.tablero = new Tablero();
+  }
+
+  jugarTurno(
+    mazo: Mazo,
+    oponente: Jugador,
+    pilaDescarte: PilaDescarte,
+    historial: ListaHistorial,
+    fila: number,
+    columna: number
+  ): boolean {
+
+    // 1. Robar carta
+    var carta = mazo.robarCarta();
+    if (carta === null) {
+      return false;
     }
 
-     jugarTurno(mazo: Mazo, oponente: Jugador): void {
-        var cartaRobada = mazo.robarCarta();
-        if (cartaRobada === null) return;
-        var f = 0;
-        var colocada = false;
-        while (f < 3 && !colocada) {
-            var c = 0;
-            while (c < 3 && !colocada) {
-                if (this.Tablero.casillas[f]![c] === null) {
-                    this.Tablero.colocarCarta(cartaRobada, f, c);
-                    colocada = true;
-                }
-                c = c + 1;
-            }
-            f = f + 1;
-            if (!colocada) {
-                this.Tablero.eliminarCartasPorRango(cartaRobada.getRango(), this.pilaDescarte);
-            }
-        }
+    var colocado = this.tablero.colocarCarta(carta, fila, columna);
+    if (!colocado) {
+      return false;
     }
 
-    iniciarJuego(mazo: Mazo): void {
-        mazo.crearMazoInicial();
-        mazo.barajar();
-    }
+    oponente.tablero.eliminarCartasPorRango(carta.getRango(), pilaDescarte);
 
-    calcularPuntuacion(): number {
-    return this.Tablero.calcularPuntuacion();
+    return true;
+  }
+
+  calcularPuntuacion(): number {
+    return this.tablero.calcularPuntuacion();
   }
 }
