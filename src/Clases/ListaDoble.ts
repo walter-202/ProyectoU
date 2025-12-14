@@ -43,4 +43,15 @@ export class ListaHistorial {
       actual = actual.siguiente;
     }
   }
+  obtenerNumeroTurno(): number {
+    var actual = this.cabeza;
+    var contador = 0;
+
+    while (actual !== null) {
+      contador = contador + 1;
+      actual = actual.siguiente;
+    }
+
+    return contador;
+  }
 }

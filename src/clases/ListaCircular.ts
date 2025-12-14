@@ -1,5 +1,5 @@
-import { Carta } from "./Carta";
-import { NodoCarta } from "./NodoCarta";
+import { Carta } from "./Carta.js";
+import { NodoCarta } from "./NodoCarta.js";
 
 export class Mazo {
   cabeza: NodoCarta | null;

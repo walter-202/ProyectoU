@@ -1,5 +1,5 @@
-import { Carta } from "./Carta";
-import { PilaDescarte } from "./Pila_Descarte";
+import { Carta } from "./Carta.js";
+import { PilaDescarte } from "./Pila_Descarte.js";
 
 export class Tablero {
   casillas: (Carta | null)[][];
