@@ -1,5 +1,5 @@
-import { ListaSimple } from "./ListaSimple";
-import { ListaDoble } from "./ListaDoble";
+import { ListaSimple } from "./ListaSimple.js";
+import { ListaDoble } from "./ListaDoble.js";
 console.log("Lista Simple:");
 const simple = new ListaSimple();
 simple.agregar("A");
