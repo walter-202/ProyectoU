@@ -1,139 +1,427 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cardlebones (Huesos de Carta)</title>
-    <link rel="stylesheet" href="./style.css">
+    <title>Corte de Baraja - Edición Profesional</title>
+
+    <style>
+        :root {
+            --bg-main: #0d0d0d;
+            --wood-dark: #1a0f0a; 
+            --wood-medium: #2d1a11; 
+            --gold-border: #cba163; 
+            --gold-glow: #f0d5a3;
+            --accent-red: #7a1212;
+            --card-front: #fdfaf5;
+            --text-main: #e0d5c1;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            margin: 0;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #000000 100%);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header-title {
+            font-size: 2.8rem;
+            color: var(--gold-border);
+            text-shadow: 2px 2px 4px #000;
+            margin-bottom: 30px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            border-bottom: 3px double var(--gold-border);
+            padding-bottom: 10px;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 320px 1fr; 
+            gap: 25px;
+            width: 100%;
+            max-width: 1350px;
+        }
+
+        /* --- HISTORIAL (IZQUIERDA) --- */
+        .log-panel {
+            background: var(--wood-dark);
+            border: 2px solid var(--gold-border);
+            border-radius: 4px;
+            padding: 15px;
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.7);
+        }
+
+        .log-panel h3 {
+            color: var(--gold-border);
+            text-align: center;
+            margin-top: 0;
+            font-variant: small-caps;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        #log-scroll {
+            flex-grow: 1;
+            overflow-y: auto;
+            font-family: Arial, sans-serif;
+            padding-right: 5px;
+        }
+
+        .log-entry {
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 8px;
+            padding: 10px;
+            border-left: 4px solid var(--gold-border);
+            font-size: 0.85rem;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* --- MESA DE JUEGO --- */
+        .main-board {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 25px;
+            background: rgba(30, 30, 30, 0.4);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #222;
+        }
+
+        .player-station {
+            background: var(--wood-medium);
+            border: 2px solid #444;
+            padding: 20px;
+            border-radius: 4px;
+            transition: all 0.4s ease;
+        }
+
+        .player-station.active {
+            border-color: var(--gold-border);
+            box-shadow: 0 0 25px rgba(203, 161, 99, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .score-box {
+            background: #000;
+            padding: 5px 15px;
+            border: 1px solid var(--gold-border);
+            font-weight: bold;
+            color: var(--gold-glow);
+            font-size: 1.4rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* --- CARTAS --- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 90px);
+            gap: 12px;
+        }
+
+        .card-slot {
+            width: 90px;
+            height: 125px;
+            background: rgba(0,0,0,0.4);
+            border: 1px dashed #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .card-slot.available:hover {
+            border-color: var(--gold-glow);
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+        }
+
+        .card-entity {
+            width: 80px;
+            height: 115px;
+            background: var(--card-front);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .card-entity.red { color: var(--accent-red); }
+        .card-entity .rank { font-size: 1.8rem; font-weight: bold; line-height: 1; }
+        .card-entity .suit { font-size: 1.2rem; }
+
+        /* --- ZONA CENTRAL --- */
+        .interaction-zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            min-width: 180px;
+        }
+
+        .deck-box {
+            width: 90px;
+            height: 125px;
+            background: var(--accent-red);
+            border: 2px solid var(--gold-border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
+        }
+
+        .deck-box:hover { transform: scale(1.05); }
+
+        .btn-action {
+            background: transparent;
+            color: var(--gold-border);
+            border: 1px solid var(--gold-border);
+            padding: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-action:hover:not(:disabled) { background: var(--gold-border); color: #000; }
+        .btn-action:disabled { opacity: 0.2; cursor: default; }
+
+        #status-msg { font-size: 0.9rem; color: var(--gold-glow); font-style: italic; }
+
+    </style>
 </head>
-
 <body>
-    <div id="game-container">
-        <!-- Background Overlay -->
-        <div class="background-overlay"></div>
 
-        <!-- Header -->
-        <header>
-            <div class="title-banner">
-                <!-- Using the generated banner or a CSS fallback -->
-                <div class="banner-img"></div>
+    <h1 class="header-title">Corte de Baraja</h1>
+
+    <div class="game-container">
+        <aside class="log-panel">
+            <h3>Historial de Partida</h3>
+            <div id="log-scroll"></div>
+        </aside>
+
+        <main class="main-board">
+            <section id="p0-ui" class="player-station active">
+                <div class="player-header">
+                    <span>JUGADOR 1</span>
+                    <div id="score-0" class="score-box">0</div>
+                </div>
+                <div id="board-0" class="card-grid"></div>
+            </section>
+
+            <div class="interaction-zone">
+                <div class="deck-box" id="btn-deck">
+                    <span style="color: var(--gold-border); font-size: 2.5rem;">♠</span>
+                </div>
+                <div id="draw-preview" style="min-height: 125px;"></div>
+                <button class="btn-action" id="btn-draw">Tomar Carta</button>
+                <div id="status-msg">Turno: Jugador 1</div>
             </div>
-        </header>
 
-        <!-- Main Game Area -->
-        <main>
-            <!-- Player 1 Section (Left) -->
-            <section id="player1-area" class="player-section">
+            <section id="p1-ui" class="player-station">
                 <div class="player-header">
-                    <h2>Jugador 1</h2>
+                    <span>JUGADOR 2</span>
+                    <div id="score-1" class="score-box">0</div>
                 </div>
-                <div class="columns-wrapper">
-                    <button id="p1-prev" class="nav-arrow">&lt;</button>
-                    <div class="columns-container" id="p1-columns">
-                        <!-- Columns will be injected by JS, but adding placeholders for visual -->
-                        <!-- Example structure for a column -->
-                        <div class="game-column">
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                        </div>
-                        <div class="game-column">
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                        </div>
-                        <div class="game-column">
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                        </div>
-                    </div>
-                    <button id="p1-next" class="nav-arrow">&gt;</button>
-                </div>
-                <!-- Navigation/Selector Controls -->
-                <div class="controls-area">
-                    <div class="selector-display-box">
-                        <span class="info-icon">i</span>
-                        <span id="selector-text">Selector: Lista Circular Doble</span>
-                    </div>
-                    <div class="score-display">
-                        <div class="scroll-bg">Puntuación: <span id="p1-score">0</span></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Center Area (Draw Pile) -->
-            <section id="center-area">
-                <div class="draw-pile-group">
-                    <div class="section-label">Pila de Robo</div>
-                    <div id="draw-pile" class="card-stack">
-                        <!-- Card Back Image -->
-                        <img src="./assets/card_back.png" class="pile-card" alt="Deck">
-                    </div>
-                    <div class="section-label-bottom">POP (Robar)</div>
-                </div>
-
-                <div class="main-action-btn-container">
-                    <button id="draw-btn" class="gold-coin-btn">
-                        <div class="card-icon"></div>
-                    </button>
-                    <div class="btn-label">ROBAR CARTA</div>
-                </div>
-
-                <div class="turn-indicator">
-                    <div class="compass"></div>
-                    <div class="turn-text">TURNO DE: <span id="current-player-name">JUGADOR 1</span></div>
-                </div>
-            </section>
-
-            <!-- Player 2 Section (Right) -->
-            <section id="player2-area" class="player-section">
-                <div class="player-header">
-                    <h2>Jugador 2</h2>
-                </div>
-                <div class="content-row">
-                    <div class="columns-container" id="p2-columns">
-                        <!-- Columns placeholder -->
-                        <div class="game-column">
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                        </div>
-                        <div class="game-column">
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                        </div>
-                        <div class="game-column">
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                            <div class="card-slot"></div>
-                        </div>
-                    </div>
-
-                    <!-- Game Log (Bitácora) -->
-                    <div class="game-log-wrapper">
-                        <div class="log-paper">
-                            <div class="log-header-text">Bitácora<br><small>(Lista Simple)</small></div>
-                            <div id="game-log" class="log-content">
-                                <div class="log-entry">J1: Robó 8♣</div>
-                                <div class="log-arrow">↓</div>
-                                <div class="log-entry">J2: Colocó 5♠ en Col 2</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="controls-area-right">
-                    <button id="view-log-btn" class="wood-btn">BITÁCORA</button>
-                </div>
+                <div id="board-1" class="card-grid"></div>
             </section>
         </main>
     </div>
 
-    <!-- Scripts -->
-    <script type="module" src="./dist/app.js"></script>
-</body>
+    <script>
+        // --- ESTADO DEL JUEGO ---
+        let turno = 0;
+        let cartaEnMano = null;
+        let juegoTerminado = false;
+        const tableros = [Array(9).fill(null), Array(9).fill(null)];
+        const puntajes = [0, 0];
 
+        // --- LÓGICA DE PUNTUACIÓN ---
+        function obtenerColor(palo) {
+            return (palo === '♥' || palo === '♦') ? 'Rojo' : 'Negro';
+        }
+
+        function calcularPuntosColumna(jugadorIdx, colIdx) {
+            const indices = [colIdx, colIdx + 3, colIdx + 6];
+            const cartasCol = indices.map(i => tableros[jugadorIdx][i]).filter(c => c !== null);
+            
+            if (cartasCol.length === 0) return 0;
+
+            const valores = cartasCol.map(c => c.valor);
+            const palos = cartasCol.map(c => c.palo);
+            
+            let sumaBase = valores.reduce((a, b) => a + b, 0);
+            let multiplicador = 1;
+            let bonoFijo = 0;
+
+            const conteo = {};
+            valores.forEach(v => conteo[v] = (conteo[v] || 0) + 1);
+            for (let v in conteo) {
+                if (conteo[v] === 3) multiplicador = 3;
+                else if (conteo[v] === 2 && multiplicador < 3) multiplicador = 2;
+            }
+
+            let subtotal = sumaBase * multiplicador;
+
+            if (cartasCol.length === 3) {
+                const mismoPalo = palos.every(p => p === palos[0]);
+                const mismoColor = palos.every(p => obtenerColor(p) === obtenerColor(palos[0]));
+                const vOrd = [...valores].sort((a, b) => a - b);
+                const esEscalera = (vOrd[0] + 1 === vOrd[1]) && (vOrd[1] + 1 === vOrd[2]);
+
+                if (mismoPalo && esEscalera) bonoFijo = 25;
+                else if (esEscalera && mismoColor) bonoFijo = 15;
+                else if (mismoPalo) bonoFijo = 10;
+                else if (mismoColor) bonoFijo = 5;
+            }
+
+            return subtotal + bonoFijo;
+        }
+
+        function actualizarPuntajes() {
+            [0, 1].forEach(pIdx => {
+                let total = 0;
+                for (let col = 0; col < 3; col++) total += calcularPuntosColumna(pIdx, col);
+                puntajes[pIdx] = total;
+                document.getElementById(`score-${pIdx}`).innerText = total;
+            });
+        }
+
+        // --- LÓGICA DE JUEGO ---
+        function robarCarta() {
+            if (cartaEnMano || juegoTerminado) return;
+            const val = Math.floor(Math.random() * 13) + 2;
+            const palos = ['♥', '♦', '♠', '♣'];
+            cartaEnMano = { valor: val, palo: palos[Math.floor(Math.random() * 4)] };
+            render();
+        }
+
+        function colocarCarta(pIdx, sIdx) {
+            if (pIdx !== turno || !cartaEnMano || tableros[pIdx][sIdx] || juegoTerminado) return;
+
+            tableros[pIdx][sIdx] = {...cartaEnMano};
+            const col = sIdx % 3;
+            const opIdx = 1 - pIdx;
+            let eliminadas = [];
+
+            [col, col+3, col+6].forEach(i => {
+                if (tableros[opIdx][i] && tableros[opIdx][i].valor === cartaEnMano.valor) {
+                    const c = tableros[opIdx][i];
+                    eliminadas.push(`${c.valor > 10 ? ['J','Q','K','A'][c.valor-11] : c.valor}${c.palo}`);
+                    tableros[opIdx][i] = null;
+                }
+            });
+
+            registrarEnHistorial(pIdx, cartaEnMano, sIdx, eliminadas);
+            cartaEnMano = null;
+            actualizarPuntajes();
+
+            if (verificarFin()) {
+                finalizar();
+            } else {
+                turno = 1 - turno;
+            }
+            render();
+        }
+
+        function verificarFin() {
+            return tableros[0].every(c => c !== null) || tableros[1].every(c => c !== null);
+        }
+
+        function finalizar() {
+            juegoTerminado = true;
+            const ganador = puntajes[0] > puntajes[1] ? "JUGADOR 1" : (puntajes[1] > puntajes[0] ? "JUGADOR 2" : "EMPATE");
+            
+            const log = document.getElementById('log-scroll');
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            div.style.borderLeft = "4px solid #fff";
+            div.style.textAlign = "center";
+            div.innerHTML = `<strong>PARTIDA FINALIZADA</strong><br>Ganador: ${ganador}<br><button onclick="location.reload()" style="margin-top:8px; cursor:pointer">Reiniciar</button>`;
+            log.prepend(div);
+        }
+
+        function registrarEnHistorial(pIdx, carta, sIdx, elims) {
+            const log = document.getElementById('log-scroll');
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            const label = carta.valor > 10 ? ['J','Q','K','A'][carta.valor-11] : carta.valor;
+            
+            div.innerHTML = `<b>Jugador ${pIdx+1}</b> colocó <b>${label}${carta.palo}</b>.`;
+            if (elims.length > 0) {
+                div.innerHTML += `<br><span style="color:#ff5555">Eliminó del oponente: ${elims.join(', ')}</span>`;
+            }
+            log.prepend(div);
+        }
+
+        function render() {
+            [0, 1].forEach(pIdx => {
+                const grid = document.getElementById(`board-${pIdx}`);
+                grid.innerHTML = '';
+                tableros[pIdx].forEach((c, sIdx) => {
+                    const slot = document.createElement('div');
+                    slot.className = `card-slot ${turno === pIdx && cartaEnMano && !c && !juegoTerminado ? 'available' : ''}`;
+                    slot.onclick = () => colocarCarta(pIdx, sIdx);
+                    if (c) {
+                        const isRed = c.palo === '♥' || c.palo === '♦';
+                        const label = c.valor > 10 ? ['J','Q','K','A'][c.valor-11] : c.valor;
+                        slot.innerHTML = `<div class="card-entity ${isRed ? 'red' : ''}"><span class="rank">${label}</span><span class="suit">${c.palo}</span></div>`;
+                    }
+                    grid.appendChild(slot);
+                });
+                document.getElementById(`p${pIdx}-ui`).classList.toggle('active', turno === pIdx && !juegoTerminado);
+            });
+
+            const preview = document.getElementById('draw-preview');
+            const btnDraw = document.getElementById('btn-draw');
+            
+            if (cartaEnMano) {
+                const isRed = cartaEnMano.palo === '♥' || cartaEnMano.palo === '♦';
+                const label = cartaEnMano.valor > 10 ? ['J','Q','K','A'][cartaEnMano.valor-11] : cartaEnMano.valor;
+                preview.innerHTML = `<div class="card-entity ${isRed ? 'red' : ''}" style="margin:auto"><span class="rank">${label}</span><span class="suit">${cartaEnMano.palo}</span></div>`;
+                btnDraw.disabled = true;
+                document.getElementById('status-msg').innerText = "Coloca la carta en tu tablero";
+            } else {
+                preview.innerHTML = '';
+                btnDraw.disabled = juegoTerminado;
+                document.getElementById('status-msg').innerText = juegoTerminado ? "Partida Concluida" : `Turno: Jugador ${turno + 1}`;
+            }
+        }
+
+        document.getElementById('btn-deck').onclick = robarCarta;
+        document.getElementById('btn-draw').onclick = robarCarta;
+        render();
+    </script>
+</body>
 </html>

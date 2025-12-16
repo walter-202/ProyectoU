@@ -203,7 +203,7 @@ function handleColumnClick(playerIdx: number, colIdx: number) {
     
     if (colocado) {
         // 3. Eliminar Cartas Oponente
-        oponente.tablero.eliminarCartasPorRango(currentCard.getRango(), game.pilaDescarte);
+        oponente.tablero.eliminarCartasPorRangoEnColumna(currentCard.getRango(), colIdx,game.pilaDescarte);
         
         // 4. Update History
         game.historial.agregar(
@@ -268,7 +268,7 @@ function aiTurn() {
 
             if (fila !== -1) {
                 game.jugador2.tablero.colocarCarta(currentCard!, fila, c);
-                game.jugador1.tablero.eliminarCartasPorRango(currentCard!.getRango(), game.pilaDescarte);
+                game.jugador1.tablero.eliminarCartasPorRangoEnColumna(currentCard!.getRango(), c, game.pilaDescarte);
                  game.historial.agregar(
                     game.historial.obtenerNumeroTurno() + 1,
                     game.jugador2.nombre,

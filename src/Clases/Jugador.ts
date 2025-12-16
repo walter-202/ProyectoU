@@ -30,7 +30,7 @@ export class Jugador {
     if (!colocado) {
       return false;
     }
-    oponente.tablero.eliminarCartasPorRango(carta.getRango(), pilaDescarte);
+    oponente.tablero.eliminarCartasPorRangoEnColumna(carta.getRango(), columna, pilaDescarte);
     historial.agregar(
       historial.obtenerNumeroTurno() + 1,
       this.nombre,
