@@ -51,16 +51,15 @@ export class PilaDescarte {
   }
 
   barajar(): void {
-  if (this.estaVacia()) return;
-  const todasLasCartas = this.obtenerTodas();
-  for (let i = todasLasCartas.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [todasLasCartas[i], todasLasCartas[j]] = [todasLasCartas[j]!, todasLasCartas[i]!];
+    if (this.estaVacia()) return;
+    const todasLasCartas = this.obtenerTodas();
+    for (let i = todasLasCartas.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [todasLasCartas[i], todasLasCartas[j]] = [todasLasCartas[j]!, todasLasCartas[i]!];
+    }
+    this.Top = null;
+    for (const carta of todasLasCartas) {
+      this.insertarFin(carta);
+    }
   }
-  this.Top = null;
-  for (const carta of todasLasCartas) {
-    this.insertarFin(carta);
-  }
-}
-
 }

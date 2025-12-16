@@ -19,21 +19,21 @@ export class Tablero {
     this.casillas[fila]![columna]! = carta;
     return true;
   }
-
-  eliminarCartasPorRango(rango: number, pilaDescarte: PilaDescarte): void {
-    var f = 0;
-    while (f < 3) {
-      var c = 0;
-      while (c < 3) {
-        var carta = this.casillas[f]![c]!;
-        if (carta !== null && carta.getRango() === rango) {
-          pilaDescarte.insertarFin(carta);
-          this.casillas[f]![c] = null;
-        }
-        c = c + 1;
+  public eliminarCartasPorRangoEnColumna(rangoParaEliminar: number, columnaObjetivo: number, pilaDescarte: PilaDescarte): void {
+      
+      let f: number = 0;
+      while (f < 3) {
+          let cartaActual: Carta | null = this.casillas[f]![columnaObjetivo]!;
+                  if (cartaActual !== null) {
+              if (cartaActual.getRango() === rangoParaEliminar) {
+                  pilaDescarte.insertarFin(cartaActual);
+                  this.casillas[f]![columnaObjetivo] = null;
+                  
+                  console.log("¡Ataque! Carta " + rangoParaEliminar + " eliminada en fila " + f + ", columna " + columnaObjetivo);
+              }
+          }
+          f = f + 1;
       }
-      f = f + 1;
-    }
   }
   calcularPuntuacionColumna(columna: number): number {
     var suma = 0;
